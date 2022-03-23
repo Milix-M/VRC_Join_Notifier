@@ -79,34 +79,23 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     updinterval = tk.Entry(settingwin, width=10)
     updinterval.insert(0, config["updinterval"])
     updinterval.pack()
-    if config["sendxsoverlay"]:
-        bl = tk.BooleanVar()
-        bl.set(True)
-    elif config["sendxsoverlay"] == False:
-        bl = tk.BooleanVar()
-        bl.set(False)
+
+    bl = tk.BooleanVar()
+    bl.set(config["sendxsoverlay"])
     sendxsovelaychkbox = tk.Checkbutton(settingwin, variable=bl, text="XSOverlayに送信する").pack()
-    if config["writelog"]:
-        bl2 = tk.BooleanVar()
-        bl2.set(True)
-    elif config["writelog"] == False:
-        bl2 = tk.BooleanVar()
-        bl2.set(False)
+
+    bl2 = tk.BooleanVar()
+    bl2.set(config["writelog"])
     writelogchkbox = tk.Checkbutton(settingwin, variable=bl2, text="Joinログを.txt形式で書き出す").pack()
-    if config["restorelogs"]:
-        bl3 = tk.BooleanVar()
-        bl3.set(True)
-    elif config["restorelogs"] == False:
-        bl3 = tk.BooleanVar()
-        bl3.set(False)
+
+    bl3 = tk.BooleanVar()
+    bl3.set(config["restorelogs"])
     restorelogschkbox = tk.Checkbutton(settingwin, variable=bl3, text="Joinログを.txtファイルから読み込み復元する").pack()
-    if config["separateworld"]:
-        bl4 = tk.BooleanVar()
-        bl4.set(True)
-    elif config["separateworld"] == False:
-        bl4 = tk.BooleanVar()
-        bl4.set(False)
+
+    bl4 = tk.BooleanVar()
+    bl4.set(config["separateworld"])
     separateworldchkbox = tk.Checkbutton(settingwin, text="ワールド移動時にJoinログに区切りを挿入する").pack()
+
     complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get())).pack()
 
 def main(lastline): #メイン関数
