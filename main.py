@@ -57,6 +57,14 @@ def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworl
         json.dump(config, f, indent=2)
     loadsettings() #設定を再読み込み
 
+def savenonofityusr(nonotifyusr): #通知を行わないユーザをファイルに保存する関数
+    if os.path.exists('.\\no_notifyusr.txt'):
+        with open(".\\no_notifyusr.txt", "w", encoding="utf-8") as f:
+            f.write(nonotifyusr)
+    else:
+        with open(".\\no_notifyusr.txt", "x", encoding="utf-8") as f:
+            f.write(nonotifyusr)
+
 def loadsettings(): #設定を読み込む関数
     global config
     #設定ファイルを読み込み開始
@@ -70,6 +78,15 @@ def loadsettings(): #設定を読み込む関数
         json.dump(config, f, indent=2) #json形式で書き込み
         f.close()
     #設定ファイル読み込み終了
+
+def loadblacklist(): #ブラックリストを読み込む関数
+    global nonotifyusers
+    #ブラックリストを読み込み開始
+    if os.path.exists('.\\no_notifyusr.txt'):
+        f = open('.\\no_notifyusr.txt', 'r', encoding="utf-8")
+        nonotifyusers = f.read()
+        f.close()
+    #ブラックリスト読み込み終了
 
 def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
@@ -97,6 +114,18 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     separateworldchkbox = tk.Checkbutton(settingwin, text="ワールド移動時にJoinログに区切りを挿入する").pack()
 
     complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get())).pack()
+
+def createblacklistwin(): #ブラックリストを編集するウィンドウを作成する関数
+    blacklistwin = tk.Toplevel()
+    blacklistwin.title("通知しないユーザーを編集")
+    blacklistwin.geometry("400x100")
+    blacklistwin.resizable(False, False)
+    nonotifyusrlabel = tk.Label(blacklistwin, text="XSOvelayで通知しないユーザー名をカンマ区切りで入力").pack()
+    nonotifyusr = tk.Entry(blacklistwin, width=50)
+    loadblacklist()
+    nonotifyusr.insert(0, nonotifyusers)
+    nonotifyusr.pack()
+    editcompletebtn = tk.Button(blacklistwin, text="保存", command=lambda:savenonofityusr(nonotifyusr.get())).pack()
 
 def main(lastline): #メイン関数
     senddatas = queue.Queue()
@@ -139,8 +168,11 @@ root.config(menu=menubar)
 menucfg = tk.Menu(root, tearoff=0)
 menubar.add_cascade(label="設定", menu=menucfg)
 menucfg.add_command(label="環境設定", command=createsettingwin)
+menucfg.add_separator()
+menucfg.add_command(label="通知除外設定", command=createblacklistwin)
 
-logolabel = tk.Label(root, text="VRChat Join Notifier", font=("MSゴシック", "20", "bold")).grid(row=0, column=0) #上部ロゴテキスト
+#上部ロゴテキスト
+logolabel = tk.Label(root, text="VRChat Join Notifier", font=("MSゴシック", "20", "bold")).grid(row=0, column=0)
 
 #テキストエリア
 scrollbar_text = tk.Scrollbar(orient="vertical") #スクロールバー
