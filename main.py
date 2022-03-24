@@ -5,7 +5,7 @@ import tkinter as tk
 from socket import socket, AF_INET, SOCK_DGRAM
 import queue
 
-def findnewvrclog(): #最新のVRCログファイルを取得する関数
+def findnewvrclog(): #最新のVRCログファイルのパスを取得する関数
     vrclogdir = os.getenv('LOCALAPPDATA') + 'Low\\VRChat\\VRChat'
     files = glob.glob(vrclogdir + '\\*.txt')
     logs = {}
