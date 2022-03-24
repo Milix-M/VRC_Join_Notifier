@@ -64,6 +64,7 @@ def savenonofityusr(nonotifyusr): #通知を行わないユーザをファイル
     else:
         with open(".\\no_notifyusr.txt", "x", encoding="utf-8") as f:
             f.write(nonotifyusr)
+    loadblacklist()
 
 def loadsettings(): #設定を読み込む関数
     global config
@@ -129,7 +130,9 @@ def createblacklistwin(): #ブラックリストを編集するウィンドウ�
 
 def main(lastline): #メイン関数
     senddatas = queue.Queue()
+    xsdata = []
     joindata = ""
+    deleteusrs = nonotifyusers.split(",")
     path = findnewvrclog() #最新のVRCログファイルを取得
     with open(path, encoding="utf-8") as f: #ログファイルをリストで読み込み
         lines = f.readlines()
@@ -139,16 +142,23 @@ def main(lastline): #メイン関数
         count = line.find("[Behaviour] OnPlayerJoined") #指定文字列がある行を探す
         if count != -1: #OnPlayerJoinedが見つかったら
             qdata = (line[60:] + ",").replace("\n", "")
+            xsdata.append((line[60:]).replace("\n", "")) #XSOverlayに送信するデータをリストに追加
             senddatas.put(qdata)
             joindata = line[:19] + " Join"
     if joindata:
         joinlog = ""
-        while not senddatas.empty():
-            joinlog = joinlog + senddatas.get()
+        while not senddatas.empty(): #senddatasがある間
+            joinlog = joinlog + senddatas.get() #senddatasからデータを取り出しjoinlogに追加
         final_string = joindata + joinlog.rstrip(",") + "\n"
         if config["sendxsoverlay"]:
-            xsoverlaysenddata = joinlog.rstrip(",").lstrip(" ") #XSOverlayに送るデータ
-            sendtoxsoverlay(xsoverlaysenddata) #XSOverlayに送信
+            for i in deleteusrs: #ブラックリストにあるユーザーを削除
+                if " " + i in xsdata:
+                    xsdata.remove(" " + i)
+            xsoverlaysenddata = ",".join(xsdata) #ユーザーごとにカンマを入れて代入
+            xsoverlaysenddata = xsoverlaysenddata.lstrip().rstrip() #空白を削除
+            #xsoverlaysenddata = joinlog.rstrip(",").lstrip(" ") #XSOverlayに送るデータ
+            if xsoverlaysenddata:
+                sendtoxsoverlay(xsoverlaysenddata) #XSOverlayに送信
         logview.configure(state='normal')
         logview.insert('end', final_string)
         logview.see("end")
@@ -190,6 +200,7 @@ with open(path, encoding="utf-8") as f: #ログファイルをリストで読み
     lines = f.readlines()
 
 loadsettings() #設定ファイルを読み込む
+loadblacklist() #ブラックリストを読み込む
 
 if config["restorelogs"] and os.path.exists(".\\vrcjoinlog.txt"): #Joinログを.txtファイルから読み込み、テキストエリアに表示
     with open(".\\vrcjoinlog.txt", "r", encoding="utf-8") as f:
