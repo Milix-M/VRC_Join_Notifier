@@ -44,7 +44,7 @@ def writejoinlog(writedata): #Joinログを.txtファイルに書き出す関数
         with open(".\\vrcjoinlog.txt", "x", encoding="utf-8") as f:
             f.write(writedata)
 
-def savesettings(updinterval, sendxsoverlay, writelog, restorelogs): #設定をファイルに書き込む関数
+def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworld): #設定をファイルに書き込む関数
     config["updinterval"] = updinterval
     config["sendxsoverlay"] = sendxsoverlay
     config["writelog"] = writelog
@@ -52,9 +52,19 @@ def savesettings(updinterval, sendxsoverlay, writelog, restorelogs): #設定を�
         if not writelog:
             config["writelog"] = True
     config["restorelogs"] = restorelogs
+    config["separateworld"] = separateworld
     with open("config.json", "w") as f:
         json.dump(config, f, indent=2)
     loadsettings() #設定を再読み込み
+
+def savenonofityusr(nonotifyusr): #通知を行わないユーザをファイルに保存する関数
+    if os.path.exists('.\\no_notifyusr.txt'):
+        with open(".\\no_notifyusr.txt", "w", encoding="utf-8") as f:
+            f.write(nonotifyusr)
+    else:
+        with open(".\\no_notifyusr.txt", "x", encoding="utf-8") as f:
+            f.write(nonotifyusr)
+    loadblacklist()
 
 def loadsettings(): #設定を読み込む関数
     global config
@@ -64,11 +74,20 @@ def loadsettings(): #設定を読み込む関数
         config = json.load(f)
         f.close()
     else:
-        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True}
+        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True, "separateworld": True}
         f = open('.\\config.json', 'w')
         json.dump(config, f, indent=2) #json形式で書き込み
         f.close()
     #設定ファイル読み込み終了
+
+def loadblacklist(): #ブラックリストを読み込む関数
+    global nonotifyusers
+    #ブラックリストを読み込み開始
+    if os.path.exists('.\\no_notifyusr.txt'):
+        f = open('.\\no_notifyusr.txt', 'r', encoding="utf-8")
+        nonotifyusers = f.read()
+        f.close()
+    #ブラックリスト読み込み終了
 
 def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
@@ -91,11 +110,29 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     bl3.set(config["restorelogs"])
     restorelogschkbox = tk.Checkbutton(settingwin, variable=bl3, text="Joinログを.txtファイルから読み込み復元する").pack()
 
-    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get())).pack()
+    bl4 = tk.BooleanVar()
+    bl4.set(config["separateworld"])
+    separateworldchkbox = tk.Checkbutton(settingwin, text="ワールド移動時にJoinログに区切りを挿入する").pack()
+
+    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get())).pack()
+
+def createblacklistwin(): #ブラックリストを編集するウィンドウを作成する関数
+    blacklistwin = tk.Toplevel()
+    blacklistwin.title("通知しないユーザーを編集")
+    blacklistwin.geometry("400x100")
+    blacklistwin.resizable(False, False)
+    nonotifyusrlabel = tk.Label(blacklistwin, text="XSOvelayで通知しないユーザー名をカンマ区切りで入力").pack()
+    nonotifyusr = tk.Entry(blacklistwin, width=50)
+    loadblacklist()
+    nonotifyusr.insert(0, nonotifyusers)
+    nonotifyusr.pack()
+    editcompletebtn = tk.Button(blacklistwin, text="保存", command=lambda:savenonofityusr(nonotifyusr.get())).pack()
 
 def main(lastline): #メイン関数
     senddatas = queue.Queue()
+    xsdata = []
     joindata = ""
+    deleteusrs = nonotifyusers.split(",")
     path = findnewvrclog() #最新のVRCログファイルを取得
     with open(path, encoding="utf-8") as f: #ログファイルをリストで読み込み
         lines = f.readlines()
@@ -105,16 +142,23 @@ def main(lastline): #メイン関数
         count = line.find("[Behaviour] OnPlayerJoined") #指定文字列がある行を探す
         if count != -1: #OnPlayerJoinedが見つかったら
             qdata = (line[60:] + ",").replace("\n", "")
+            xsdata.append((line[60:]).replace("\n", "")) #XSOverlayに送信するデータをリストに追加
             senddatas.put(qdata)
             joindata = line[:19] + " Join"
     if joindata:
         joinlog = ""
-        while not senddatas.empty():
-            joinlog = joinlog + senddatas.get()
+        while not senddatas.empty(): #senddatasがある間
+            joinlog = joinlog + senddatas.get() #senddatasからデータを取り出しjoinlogに追加
         final_string = joindata + joinlog.rstrip(",") + "\n"
         if config["sendxsoverlay"]:
-            xsoverlaysenddata = joinlog.rstrip(",").lstrip(" ") #XSOverlayに送るデータ
-            sendtoxsoverlay(xsoverlaysenddata) #XSOverlayに送信
+            for i in deleteusrs: #ブラックリストにあるユーザーを削除
+                if " " + i in xsdata:
+                    xsdata.remove(" " + i)
+            xsoverlaysenddata = ",".join(xsdata) #ユーザーごとにカンマを入れて代入
+            xsoverlaysenddata = xsoverlaysenddata.lstrip().rstrip() #空白を削除
+            #xsoverlaysenddata = joinlog.rstrip(",").lstrip(" ") #XSOverlayに送るデータ
+            if xsoverlaysenddata:
+                sendtoxsoverlay(xsoverlaysenddata) #XSOverlayに送信
         logview.configure(state='normal')
         logview.insert('end', final_string)
         logview.see("end")
@@ -134,8 +178,11 @@ root.config(menu=menubar)
 menucfg = tk.Menu(root, tearoff=0)
 menubar.add_cascade(label="設定", menu=menucfg)
 menucfg.add_command(label="環境設定", command=createsettingwin)
+menucfg.add_separator()
+menucfg.add_command(label="通知除外設定", command=createblacklistwin)
 
-logolabel = tk.Label(root, text="VRChat Join Notifier", font=("MSゴシック", "20", "bold")).grid(row=0, column=0) #上部ロゴテキスト
+#上部ロゴテキスト
+logolabel = tk.Label(root, text="VRChat Join Notifier", font=("MSゴシック", "20", "bold")).grid(row=0, column=0)
 
 #テキストエリア
 scrollbar_text = tk.Scrollbar(orient="vertical") #スクロールバー
@@ -153,6 +200,7 @@ with open(path, encoding="utf-8") as f: #ログファイルをリストで読み
     lines = f.readlines()
 
 loadsettings() #設定ファイルを読み込む
+loadblacklist() #ブラックリストを読み込む
 
 if config["restorelogs"] and os.path.exists(".\\vrcjoinlog.txt"): #Joinログを.txtファイルから読み込み、テキストエリアに表示
     with open(".\\vrcjoinlog.txt", "r", encoding="utf-8") as f:
