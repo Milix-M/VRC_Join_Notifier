@@ -172,7 +172,7 @@ def main(lastline): #メイン関数
 
 #GUI設定
 root = tk.Tk()
-root.title("VRChat Join Notifier")
+root.title("VRChat Join通知システム")
 root.geometry("800x500")
 
 #メニューバー
@@ -185,7 +185,7 @@ menucfg.add_separator()
 menucfg.add_command(label="通知除外設定", command=createblacklistwin)
 
 #上部ロゴテキスト
-logolabel = tk.Label(root, text="VRChat Join Notifier", font=("MSゴシック", "20", "bold")).grid(row=0, column=0)
+logolabel = tk.Label(root, text="VRChat Join通知システム", font=("メイリオ", "20")).grid(row=0, column=0)
 
 #テキストエリア
 scrollbar_text = tk.Scrollbar(orient="vertical") #スクロールバー
