@@ -6,8 +6,7 @@ from socket import socket, AF_INET, SOCK_DGRAM
 import queue
 
 def findnewvrclog(): #最新のVRCログファイルを取得する関数
-    vrclogdir = os.getenv('LOCALAPPDATA') + 'Low\\VRChat\\VRChat'
-    files = glob.glob(vrclogdir + '\\*.txt')
+    files = glob.glob(os.getenv('LOCALAPPDATA') + 'Low\\VRChat\\VRChat\\*.txt')
     logs = {}
     for file in files:
         logs[file] = os.stat(file)
@@ -15,8 +14,6 @@ def findnewvrclog(): #最新のVRCログファイルを取得する関数
     return logs[0][0]
 
 def sendtoxsoverlay(content): #XSOverlayに通知を送信する関数
-    PORT = 42069
-    ADDRESS = "127.0.0.1" # 自分に送信
     s = socket(AF_INET, SOCK_DGRAM)
     msg = {
         "messageType": 1,
@@ -33,7 +30,7 @@ def sendtoxsoverlay(content): #XSOverlayに通知を送信する関数
         "sourceApp": "",
     }
     msg_str = json.dumps(msg)
-    s.sendto(msg_str.encode("utf-8"), (ADDRESS, PORT))
+    s.sendto(msg_str.encode("utf-8"), ("127.0.0.1", 42069))
     s.close()
 
 def writejoinlog(writedata): #Joinログを.txtファイルに書き出す関数
