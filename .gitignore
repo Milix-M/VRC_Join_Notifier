@@ -1,3 +1,7 @@
 no_notifyusr.txt
 vrcjoinlog.txt
 config.json
+__pycache__
+build
+dist
+*.spec
