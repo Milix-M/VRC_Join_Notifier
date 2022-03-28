@@ -112,7 +112,7 @@ def createsettingwin(): #設定ウィンドウを作成する関数
 
     bl4 = tk.BooleanVar()
     bl4.set(config["separateworld"])
-    separateworldchkbox = tk.Checkbutton(settingwin, text="ワールド移動時にJoinログに区切りを挿入する").pack()
+    separateworldchkbox = tk.Checkbutton(settingwin, variable=bl4, text="ワールド移動時にJoinログに区切りを挿入する").pack()
 
     complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get())).pack()
 
