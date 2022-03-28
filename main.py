@@ -87,6 +87,11 @@ def loadblacklist(): #ブラックリストを読み込む関数
         f = open('.\\no_notifyusr.txt', 'r', encoding="utf-8")
         nonotifyusers = f.read()
         f.close()
+    else:
+        nonotifyusers = ""
+        f = open('.\\no_notifyusr.txt', 'x', encoding="utf-8")
+        f.write(nonotifyusers)
+        f.close()
     #ブラックリスト読み込み終了
 
 def createsettingwin(): #設定ウィンドウを作成する関数
