@@ -65,7 +65,6 @@ def savenonofityusr(nonotifyusr): #通知を行わないユーザをファイル
 
 def loadsettings(): #設定を読み込む関数
     global config
-    #設定ファイルを読み込み開始
     if os.path.exists('.\\config.json'):
         f = open('.\\config.json', 'r')
         config = json.load(f)
@@ -75,11 +74,9 @@ def loadsettings(): #設定を読み込む関数
         f = open('.\\config.json', 'w')
         json.dump(config, f, indent=2) #json形式で書き込み
         f.close()
-    #設定ファイル読み込み終了
 
 def loadblacklist(): #ブラックリストを読み込む関数
     global nonotifyusers
-    #ブラックリストを読み込み開始
     if os.path.exists('.\\no_notifyusr.txt'):
         f = open('.\\no_notifyusr.txt', 'r', encoding="utf-8")
         nonotifyusers = f.read()
@@ -89,7 +86,6 @@ def loadblacklist(): #ブラックリストを読み込む関数
         f = open('.\\no_notifyusr.txt', 'x', encoding="utf-8")
         f.write(nonotifyusers)
         f.close()
-    #ブラックリスト読み込み終了
 
 def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
@@ -135,8 +131,7 @@ def main(lastline): #メイン関数
     xsdata = []
     joindata = ""
     deleteusrs = nonotifyusers.split(",")
-    path = findnewvrclog() #最新のVRCログファイルを取得
-    with open(path, encoding="utf-8") as f: #ログファイルをリストで読み込み
+    with open(findnewvrclog(), encoding="utf-8") as f: #ログファイルをリストで読み込み
         lines = f.readlines()
     endlines = len(lines) - 1 #最新の行までの行数
     newlines = lines[lastline:]
@@ -148,33 +143,32 @@ def main(lastline): #メイン関数
             logview.insert('end', "ワールド移動:" + line[61:])
             logview.see("end")
             logview.configure(state='disabled')
-            writejoinlog("ワールド移動:" + line[61:]) #ワールド移動時のログを書き込み
-        if count != -1: #OnPlayerJoinedが見つかったら
+            writejoinlog("ワールド移動:" + line[61:])
+        if count != -1:
             qdata = (line[60:] + ",").replace("\n", "")
             xsdata.append((line[60:]).replace("\n", "")) #XSOverlayに送信するデータをリストに追加
             senddatas.put(qdata)
             joindata = line[:19] + " Join"
     if joindata:
         joinlog = ""
-        while not senddatas.empty(): #senddatasがある間
-            joinlog = joinlog + senddatas.get() #senddatasからデータを取り出しjoinlogに追加
+        while not senddatas.empty():
+            joinlog = joinlog + senddatas.get()
         final_string = joindata + joinlog.rstrip(",") + "\n"
         if config["sendxsoverlay"]:
             for i in deleteusrs: #ブラックリストにあるユーザーを削除
                 if " " + i in xsdata:
                     xsdata.remove(" " + i)
-            xsoverlaysenddata = ",".join(xsdata) #ユーザーごとにカンマを入れて代入
-            xsoverlaysenddata = xsoverlaysenddata.lstrip().rstrip() #空白を削除
-            #xsoverlaysenddata = joinlog.rstrip(",").lstrip(" ") #XSOverlayに送るデータ
+            xsoverlaysenddata = ",".join(xsdata)
+            xsoverlaysenddata = xsoverlaysenddata.strip()
             if xsoverlaysenddata:
-                sendtoxsoverlay(xsoverlaysenddata) #XSOverlayに送信
+                sendtoxsoverlay(xsoverlaysenddata)
         logview.configure(state='normal')
         logview.insert('end', final_string)
         logview.see("end")
         logview.configure(state='disabled')
         if config["writelog"]:
             writejoinlog(final_string)
-    root.after(config["updinterval"], main, endlines) #メイン関数を呼び出し
+    root.after(config["updinterval"], main, endlines) #メイン関数を再帰的に呼び出し
 
 #GUI設定
 root = tk.Tk()
@@ -204,12 +198,11 @@ scrollbar_text.grid(column=1, row=1, sticky=(tk.N, tk.S, tk.E, tk.W))
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 
-path = findnewvrclog() #最新のVRCログファイルを取得
-with open(path, encoding="utf-8") as f: #ログファイルをリストで読み込み
+with open(findnewvrclog(), encoding="utf-8") as f: #ログファイルをリストで読み込み
     lines = f.readlines()
 
-loadsettings() #設定ファイルを読み込む
-loadblacklist() #ブラックリストを読み込む
+loadsettings()
+loadblacklist()
 
 if config["restorelogs"] and os.path.exists(".\\vrcjoinlog.txt"): #Joinログを.txtファイルから読み込み、テキストエリアに表示
     with open(".\\vrcjoinlog.txt", "r", encoding="utf-8") as f:
@@ -219,6 +212,6 @@ if config["restorelogs"] and os.path.exists(".\\vrcjoinlog.txt"): #Joinログを
         logview.see("end")
         logview.configure(state='disabled')
 
-main(len(lines) - 1) #メイン関数を呼び出す
+main(len(lines) - 1)
 
 root.mainloop()
