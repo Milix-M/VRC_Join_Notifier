@@ -139,7 +139,14 @@ def main(lastline): #メイン関数
     endlines = len(lines) - 1 #最新の行までの行数
     newlines = lines[lastline:]
     for line in newlines:
-        count = line.find("[Behaviour] OnPlayerJoined") #指定文字列がある行を探す
+        count = line.find("[Behaviour] OnPlayerJoined")
+        worldcheck = line.find("[Behaviour] Entering Room")
+        if config["separateworld"] and worldcheck != -1:
+            logview.configure(state='normal')
+            logview.insert('end', "ワールド移動:" + line[61:])
+            logview.see("end")
+            logview.configure(state='disabled')
+            writejoinlog("ワールド移動:" + line[61:]) #ワールド移動時のログを書き込み
         if count != -1: #OnPlayerJoinedが見つかったら
             qdata = (line[60:] + ",").replace("\n", "")
             xsdata.append((line[60:]).replace("\n", "")) #XSOverlayに送信するデータをリストに追加
