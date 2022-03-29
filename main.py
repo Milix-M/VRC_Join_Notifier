@@ -250,7 +250,7 @@ menubar.add_cascade(label="このアプリについて", command=createaboutapp)
 menucfg.add_command(label="環境設定", command=createsettingwin)
 menucfg.add_command(label="通知除外設定", command=createblacklistwin)
 menucfg.add_separator()
-menucfg.add_command(label="終了", command=root.quit)
+menucfg.add_command(label="終了", command=lambda: root.after(1, thread_quit))
 
 
 #上部ロゴテキスト
