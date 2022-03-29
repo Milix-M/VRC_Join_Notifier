@@ -4,6 +4,10 @@ import json
 import tkinter as tk
 from socket import socket, AF_INET, SOCK_DGRAM
 import queue
+import threading
+import pystray
+from pystray import Icon, Menu, MenuItem
+from PIL import Image
 
 def findnewvrclog(): #最新のVRCログファイルを取得する関数
     files = glob.glob(os.getenv('LOCALAPPDATA') + 'Low\\VRChat\\VRChat\\*.txt')
@@ -41,7 +45,7 @@ def writejoinlog(writedata): #Joinログを.txtファイルに書き出す関数
         with open(".\\vrcjoinlog.txt", "x", encoding="utf-8") as f:
             f.write(writedata)
 
-def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworld): #設定をファイルに書き込む関数
+def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworld, tasktray, startnowindow): #設定をファイルに書き込む関数
     config["updinterval"] = updinterval
     config["sendxsoverlay"] = sendxsoverlay
     config["writelog"] = writelog
@@ -50,6 +54,11 @@ def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworl
             config["writelog"] = True
     config["restorelogs"] = restorelogs
     config["separateworld"] = separateworld
+    config["tasktray"] = tasktray
+    if startnowindow:
+        if not tasktray:
+            config["tasktray"] = True
+    config["startnowindow"] = startnowindow
     with open("config.json", "w") as f:
         json.dump(config, f, indent=2)
     loadsettings() #設定を再読み込み
@@ -70,7 +79,7 @@ def loadsettings(): #設定を読み込む関数
         config = json.load(f)
         f.close()
     else:
-        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True, "separateworld": True}
+        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True, "separateworld": True, "tasktray": True, "startnowindow": False}
         f = open('.\\config.json', 'w')
         json.dump(config, f, indent=2) #json形式で書き込み
         f.close()
@@ -87,10 +96,28 @@ def loadblacklist(): #ブラックリストを読み込む関数
         f.write(nonotifyusers)
         f.close()
 
+def thread_st(): #スレッドの開始をする関数
+    global icon
+    global root
+    options_map = {'表示': lambda:[root.after(0,root.deiconify)], '終了': lambda: root.after(1, thread_quit)}
+    items = []
+    for option, callback in options_map.items():
+        items.append(MenuItem(option, callback, default=True if option == 'Show' else False))
+    menu = Menu(*items)
+    image = Image.open(".\\icon.ico")
+    icon=pystray.Icon("name", image, "VRChat Join通知システム", menu)
+    icon.run()
+
+def thread_quit(): #スレッドの終了処理をする関数
+    global icon
+    global root
+    icon.stop()
+    root.destroy()
+
 def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
     settingwin.title("環境設定")
-    settingwin.geometry("300x200")
+    settingwin.geometry("300x230")
     updintervallabel = tk.Label(settingwin, text="更新間隔(ms)").pack()
     updinterval = tk.Entry(settingwin, width=10)
     updinterval.insert(0, config["updinterval"])
@@ -112,7 +139,15 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     bl4.set(config["separateworld"])
     separateworldchkbox = tk.Checkbutton(settingwin, variable=bl4, text="ワールド移動時にJoinログに区切りを挿入する").pack()
 
-    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get())).pack()
+    bl5 = tk.BooleanVar()
+    bl5.set(config["tasktray"])
+    tasktraychkbox = tk.Checkbutton(settingwin, variable=bl5, text="タスクトレイに最小化").pack()
+
+    bl6 = tk.BooleanVar()
+    bl6.set(config["startnowindow"])
+    startnowindowchkbox = tk.Checkbutton(settingwin, variable=bl6, text="最小化した状態で起動").pack()
+
+    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get(), bl5.get(), bl6.get())).pack()
 
 def createblacklistwin(): #ブラックリストを編集するウィンドウを作成する関数
     blacklistwin = tk.Toplevel()
@@ -170,12 +205,22 @@ def main(lastline): #メイン関数
             writejoinlog(final_string)
     root.after(config["updinterval"], main, endlines) #メイン関数を再帰的に呼び出し
 
+
 appversion = "0.1.0" #アプリのバージョンを設定する
+
+loadsettings()
+loadblacklist()
 
 #GUI設定
 root = tk.Tk()
+if config["startnowindow"]:
+    root.withdraw()
 root.title("VRChat Join通知システム Ver{}".format(appversion))
 root.geometry("800x500")
+root.iconbitmap(".\\icon.ico")
+if config["tasktray"]:
+    root.protocol('WM_DELETE_WINDOW', lambda:root.withdraw()) #ウィンドウを閉じた際ウィンドウを非表示にする
+    threading.Thread(target=thread_st).start()
 
 #メニューバー
 menubar = tk.Menu(root)
@@ -202,9 +247,6 @@ root.rowconfigure(1, weight=1)
 
 with open(findnewvrclog(), encoding="utf-8") as f: #ログファイルをリストで読み込み
     lines = f.readlines()
-
-loadsettings()
-loadblacklist()
 
 if config["restorelogs"] and os.path.exists(".\\vrcjoinlog.txt"): #Joinログを.txtファイルから読み込み、テキストエリアに表示
     with open(".\\vrcjoinlog.txt", "r", encoding="utf-8") as f:
