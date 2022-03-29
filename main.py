@@ -111,7 +111,7 @@ def thread_st(): #スレッドの開始をする関数
     for option, callback in options_map.items():
         items.append(MenuItem(option, callback, default=True if option == 'Show' else False))
     menu = Menu(*items)
-    image = Image.open(".\\icon.ico")
+    image = Image.open(resource_path("icon.ico"))
     icon=pystray.Icon("name", image, "VRChat Join通知システム", menu)
     icon.run()
 
