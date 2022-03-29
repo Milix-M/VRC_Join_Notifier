@@ -1,6 +1,7 @@
 import webbrowser
 import glob
 import os
+import sys
 import json
 import tkinter as tk
 from socket import socket, AF_INET, SOCK_DGRAM
@@ -9,6 +10,11 @@ import threading
 import pystray
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
+
+def resource_path(relative): #リソースのパスを取得する関数
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative)
+    return os.path.join(os.path.abspath('.'), relative)
 
 def findnewvrclog(): #最新のVRCログファイルを取得する関数
     files = glob.glob(os.getenv('LOCALAPPDATA') + 'Low\\VRChat\\VRChat\\*.txt')
@@ -236,7 +242,7 @@ if config["startnowindow"]:
     root.withdraw()
 root.title("VRChat Join通知システム Ver{}".format(appversion))
 root.geometry("800x500")
-root.iconbitmap(".\\icon.ico")
+root.iconbitmap(resource_path("icon.ico"))
 if config["tasktray"]:
     root.protocol('WM_DELETE_WINDOW', lambda:root.withdraw()) #ウィンドウを閉じた際ウィンドウを非表示にする
     threading.Thread(target=thread_st).start()
