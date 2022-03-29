@@ -170,9 +170,11 @@ def main(lastline): #メイン関数
             writejoinlog(final_string)
     root.after(config["updinterval"], main, endlines) #メイン関数を再帰的に呼び出し
 
+appversion = "0.1.0" #アプリのバージョンを設定する
+
 #GUI設定
 root = tk.Tk()
-root.title("VRChat Join通知システム")
+root.title("VRChat Join通知システム Ver{}".format(appversion))
 root.geometry("800x500")
 
 #メニューバー
