@@ -128,6 +128,7 @@ def createaboutapp(): #このアプリについてのウィンドウを作成す
     author = tk.Label(aboutapp, text="作者:ReoSteldam", fg="blue")
     author.pack()
     author.bind("<Button-1>", lambda e: webbrowser.open_new("https://twitter.com/ReoSteldam"))
+    aboutapp.focus_set()
 
 
 def createsettingwin(): #設定ウィンドウを作成する関数
