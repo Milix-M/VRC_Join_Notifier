@@ -4,6 +4,10 @@ import json
 import tkinter as tk
 from socket import socket, AF_INET, SOCK_DGRAM
 import queue
+import threading
+import pystray
+from pystray import Icon, Menu, MenuItem
+from PIL import Image
 
 def findnewvrclog(): #最新のVRCログファイルを取得する関数
     files = glob.glob(os.getenv('LOCALAPPDATA') + 'Low\\VRChat\\VRChat\\*.txt')
@@ -86,6 +90,24 @@ def loadblacklist(): #ブラックリストを読み込む関数
         f = open('.\\no_notifyusr.txt', 'x', encoding="utf-8")
         f.write(nonotifyusers)
         f.close()
+
+def thread_st(): #スレッドの開始をする関数
+    global icon
+    global root
+    options_map = {'表示': lambda:[root.after(0,root.deiconify)], '終了': lambda: root.after(1, thread_quit)}
+    items = []
+    for option, callback in options_map.items():
+        items.append(MenuItem(option, callback, default=True if option == 'Show' else False))
+    menu = Menu(*items)
+    image = Image.open(".\\icon.ico")
+    icon=pystray.Icon("name", image, "VRChat Join通知システム", menu)
+    icon.run()
+
+def thread_quit(): #スレッドの終了処理をする関数
+    global icon
+    global root
+    icon.stop()
+    root.destroy()
 
 def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
@@ -176,6 +198,9 @@ appversion = "0.1.0" #アプリのバージョンを設定する
 root = tk.Tk()
 root.title("VRChat Join通知システム Ver{}".format(appversion))
 root.geometry("800x500")
+root.iconbitmap(".\\icon.ico")
+root.protocol('WM_DELETE_WINDOW', lambda:root.withdraw())
+threading.Thread(target=thread_st).start()
 
 #メニューバー
 menubar = tk.Menu(root)
