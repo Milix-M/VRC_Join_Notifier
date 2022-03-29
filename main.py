@@ -228,8 +228,10 @@ root.config(menu=menubar)
 menucfg = tk.Menu(root, tearoff=0)
 menubar.add_cascade(label="設定", menu=menucfg)
 menucfg.add_command(label="環境設定", command=createsettingwin)
-menucfg.add_separator()
 menucfg.add_command(label="通知除外設定", command=createblacklistwin)
+menucfg.add_separator()
+menucfg.add_command(label="終了", command=root.quit)
+
 
 #上部ロゴテキスト
 logolabel = tk.Label(root, text="VRChat Join通知システム", font=("メイリオ", "20")).grid(row=0, column=0)
