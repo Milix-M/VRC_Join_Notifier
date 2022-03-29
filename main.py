@@ -205,15 +205,22 @@ def main(lastline): #メイン関数
             writejoinlog(final_string)
     root.after(config["updinterval"], main, endlines) #メイン関数を再帰的に呼び出し
 
+
 appversion = "0.1.0" #アプリのバージョンを設定する
+
+loadsettings()
+loadblacklist()
 
 #GUI設定
 root = tk.Tk()
+if config["startnowindow"]:
+    root.withdraw()
 root.title("VRChat Join通知システム Ver{}".format(appversion))
 root.geometry("800x500")
 root.iconbitmap(".\\icon.ico")
-root.protocol('WM_DELETE_WINDOW', lambda:root.withdraw())
-threading.Thread(target=thread_st).start()
+if config["tasktray"]:
+    root.protocol('WM_DELETE_WINDOW', lambda:root.withdraw()) #ウィンドウを閉じた際ウィンドウを非表示にする
+    threading.Thread(target=thread_st).start()
 
 #メニューバー
 menubar = tk.Menu(root)
@@ -240,9 +247,6 @@ root.rowconfigure(1, weight=1)
 
 with open(findnewvrclog(), encoding="utf-8") as f: #ログファイルをリストで読み込み
     lines = f.readlines()
-
-loadsettings()
-loadblacklist()
 
 if config["restorelogs"] and os.path.exists(".\\vrcjoinlog.txt"): #Joinログを.txtファイルから読み込み、テキストエリアに表示
     with open(".\\vrcjoinlog.txt", "r", encoding="utf-8") as f:
