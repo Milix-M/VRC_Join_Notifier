@@ -55,9 +55,9 @@ def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworl
     config["restorelogs"] = restorelogs
     config["separateworld"] = separateworld
     config["tasktray"] = tasktray
-    if tasktray:
-        if not startnowindow:
-            config["startnowindow"] = True
+    if startnowindow:
+        if not tasktray:
+            config["tasktray"] = True
     config["startnowindow"] = startnowindow
     with open("config.json", "w") as f:
         json.dump(config, f, indent=2)
