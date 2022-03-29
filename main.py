@@ -231,7 +231,7 @@ def main(lastline): #メイン関数
     root.after(config["updinterval"], main, endlines) #メイン関数を再帰的に呼び出し
 
 
-appversion = "0.1.0" #アプリのバージョンを設定する
+appversion = "1.0.0" #アプリのバージョンを設定する
 
 loadsettings()
 loadblacklist()
