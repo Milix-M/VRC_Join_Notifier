@@ -1,3 +1,4 @@
+import webbrowser
 import glob
 import os
 import json
@@ -114,6 +115,22 @@ def thread_quit(): #スレッドの終了処理をする関数
     icon.stop()
     root.destroy()
 
+def createaboutapp(): #このアプリについてのウィンドウを作成する関数
+    global appversion
+    aboutapp = tk.Toplevel()
+    aboutapp.title("このアプリについて")
+    aboutapp.geometry("300x100")
+    appname = tk.Label(aboutapp, text="VRChat Join通知システム", font=("メイリオ", 12)).pack()
+    verlabel = tk.Label(aboutapp, text="Ver:{}".format(appversion), font=("メイリオ", 10)).pack()
+    repo = tk.Label(aboutapp, text="リポジトリへのリンク", fg="blue")
+    repo.pack()
+    repo.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/Milix-M/VRC_Join_Notifier"))
+    author = tk.Label(aboutapp, text="作者:ReoSteldam", fg="blue")
+    author.pack()
+    author.bind("<Button-1>", lambda e: webbrowser.open_new("https://twitter.com/ReoSteldam"))
+    aboutapp.focus_set()
+
+
 def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
     settingwin.title("環境設定")
@@ -229,6 +246,7 @@ menubar = tk.Menu(root)
 root.config(menu=menubar)
 menucfg = tk.Menu(root, tearoff=0)
 menubar.add_cascade(label="設定", menu=menucfg)
+menubar.add_cascade(label="このアプリについて", command=createaboutapp)
 menucfg.add_command(label="環境設定", command=createsettingwin)
 menucfg.add_command(label="通知除外設定", command=createblacklistwin)
 menucfg.add_separator()
