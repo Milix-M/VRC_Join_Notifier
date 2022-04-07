@@ -212,8 +212,7 @@ def autoexecwin(): #自動実行ウィンドウを作成する関数
     autoexecwin.title("自動実行設定")
     autoexecwin.geometry("400x100")
     autoexecwin.resizable(False, False)
-    autoexeclabel = tk.Label(autoexecwin, text="Windows起動時に自動起動するよう設定しました。").pack()
-    autoexeclabel2 = tk.Label(autoexecwin, text="自動起動を止めたい場合はWindowsのスタートアップフォルダから\n「VJN」ファイルを削除して下さい。").pack()
+    autoexeclabel = tk.Label(autoexecwin, text="Windows起動時に自動起動するよう設定しました。\n自動起動を止めたい場合はWindowsのスタートアップフォルダから\n「VJN」ファイルを削除して下さい。").pack()
     acceptbtn = tk.Button(autoexecwin, text="OK", command=autoexecwin.destroy).pack()
     autoexecwin.focus_set()
 
