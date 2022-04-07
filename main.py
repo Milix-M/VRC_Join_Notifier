@@ -193,7 +193,6 @@ def autoexecwin(): #自動実行ウィンドウを作成する関数
     target_file=os.path.join(sys.argv[0])
     #ショートカットを作成するパス
     save_path=os.path.join(str(pathlib.Path.home()) + "\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\","VJN.lnk")
-    print(save_path)
     #WSHを生成
     wsh=comtypes.client.CreateObject("wScript.Shell",dynamic=True)
     #ショートカットの作成先を指定して、ショートカットファイルを開く。作成先のファイルが存在しない場合は、自動作成される。
