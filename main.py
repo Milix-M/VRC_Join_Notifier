@@ -202,7 +202,9 @@ def autoexecwin(): #自動実行ウィンドウを作成する関数
     #リンク先を指定
     short.TargetPath=target_file
     #コメントを指定する
-    short.Description="テストショートカット"
+    short.Description="VRChat Join通知システム"
+    #作業ディレクトリ指定
+    short.workingDirectory=os.getcwd()
     #ショートカットファイルを作成する
     short.Save()
 
