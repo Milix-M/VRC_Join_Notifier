@@ -10,6 +10,8 @@ import threading
 import pystray
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
+import comtypes.client
+import pathlib
 
 def resource_path(relative): #リソースのパスを取得する関数
     if hasattr(sys, '_MEIPASS'):
@@ -186,6 +188,33 @@ def createblacklistwin(): #ブラックリストを編集するウィンドウ�
     editcompletebtn = tk.Button(blacklistwin, text="保存", command=lambda:savenonofityusr(nonotifyusr.get())).pack()
     blacklistwin.focus_set()
 
+def autoexecwin(): #自動実行ウィンドウを作成する関数
+    #リンク先のファイル名
+    target_file=os.path.join(sys.argv[0])
+    #ショートカットを作成するパス
+    save_path=os.path.join(str(pathlib.Path.home()) + "\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\","VJN.lnk")
+    print(save_path)
+    #WSHを生成
+    wsh=comtypes.client.CreateObject("wScript.Shell",dynamic=True)
+    #ショートカットの作成先を指定して、ショートカットファイルを開く。作成先のファイルが存在しない場合は、自動作成される。
+    short=wsh.CreateShortcut(save_path)
+    #以下、ショートカットにリンク先やコメントといった情報を指定する。
+    #リンク先を指定
+    short.TargetPath=target_file
+    #コメントを指定する
+    short.Description="テストショートカット"
+    #ショートカットファイルを作成する
+    short.Save()
+
+    autoexecwin = tk.Toplevel()
+    autoexecwin.title("自動実行設定")
+    autoexecwin.geometry("400x100")
+    autoexecwin.resizable(False, False)
+    autoexeclabel = tk.Label(autoexecwin, text="Windows起動時に自動起動するよう設定しました。").pack()
+    autoexeclabel2 = tk.Label(autoexecwin, text="自動起動を止めたい場合はWindowsのスタートアップフォルダから\n「VJN」ファイルを削除して下さい。").pack()
+    acceptbtn = tk.Button(autoexecwin, text="OK", command=autoexecwin.destroy).pack()
+    autoexecwin.focus_set()
+
 def main(lastline): #メイン関数
     senddatas = queue.Queue()
     xsdata = []
@@ -255,6 +284,7 @@ menubar.add_cascade(label="設定", menu=menucfg)
 menubar.add_cascade(label="このアプリについて", command=createaboutapp)
 menucfg.add_command(label="環境設定", command=createsettingwin)
 menucfg.add_command(label="通知除外設定", command=createblacklistwin)
+menucfg.add_command(label="自動起動設定", command=autoexecwin)
 menucfg.add_separator()
 menucfg.add_command(label="終了", command=lambda: root.after(1, thread_quit))
 
