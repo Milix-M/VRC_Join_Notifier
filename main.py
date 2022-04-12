@@ -133,6 +133,7 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
     settingwin.title("環境設定")
     settingwin.geometry("300x250")
+    settingwin.resizable(False, False)
     updintervallabel = tk.Label(settingwin, text="更新間隔(ms)").pack()
     updinterval = tk.Entry(settingwin, width=10)
     updinterval.insert(0, config["updinterval"])
