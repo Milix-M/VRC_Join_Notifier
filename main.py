@@ -112,7 +112,7 @@ def createaboutapp(): #このアプリについてのウィンドウを作成す
     global appversion
     aboutapp = tk.Toplevel()
     aboutapp.title("このアプリについて")
-    aboutapp.geometry("300x100")
+    aboutapp.geometry("300x140")
     appname = tk.Label(aboutapp, text="VRChat Join通知システム", font=("メイリオ", 12)).pack()
     verlabel = tk.Label(aboutapp, text="Ver:{}".format(appversion), font=("メイリオ", 10)).pack()
     repo = tk.Label(aboutapp, text="リポジトリへのリンク", fg="blue")
@@ -121,6 +121,10 @@ def createaboutapp(): #このアプリについてのウィンドウを作成す
     author = tk.Label(aboutapp, text="作者:ReoSteldam", fg="blue")
     author.pack()
     author.bind("<Button-1>", lambda e: webbrowser.open_new("https://twitter.com/ReoSteldam"))
+    updbtn = tk.Button(aboutapp, text="アップデートを確認", width=13, command=lambda : webbrowser.open_new("https://github.com/Milix-M/VRC_Join_Notifier/releases"))
+    updbtn.pack(fill = 'x', padx=20, side = 'left')
+    okbtn = tk.Button(aboutapp, text="OK", width=13, command=aboutapp.destroy)
+    okbtn.pack(fill = 'x', padx=20, side = 'right')
     aboutapp.focus_set()
 
 
