@@ -73,13 +73,10 @@ def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworl
     loadsettings() #設定を再読み込み
 
 def savenonofityusr(nonotifyusr): #通知を行わないユーザをファイルに保存する関数
-    if os.path.exists('.\\no_notifyusr.txt'):
-        with open(".\\no_notifyusr.txt", "w", encoding="utf-8") as f:
-            f.write(nonotifyusr)
-    else:
-        with open(".\\no_notifyusr.txt", "x", encoding="utf-8") as f:
-            f.write(nonotifyusr)
-    loadblacklist()
+    with open("config.json", "w") as f:
+        config["no_notifysusr"] = nonotifyusr
+        json.dump(config, f, indent=2)
+    loadsettings()
 
 def loadsettings(): #設定を読み込む関数
     global config
@@ -88,21 +85,9 @@ def loadsettings(): #設定を読み込む関数
         config = json.load(f)
         f.close()
     else:
-        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True, "separateworld": True, "tasktray": True, "startnowindow": False}
+        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True, "separateworld": True, "tasktray": True, "startnowindow": False, "no_notifysusr": ""}
         f = open('.\\config.json', 'w')
         json.dump(config, f, indent=2) #json形式で書き込み
-        f.close()
-
-def loadblacklist(): #ブラックリストを読み込む関数
-    global nonotifyusers
-    if os.path.exists('.\\no_notifyusr.txt'):
-        f = open('.\\no_notifyusr.txt', 'r', encoding="utf-8")
-        nonotifyusers = f.read()
-        f.close()
-    else:
-        nonotifyusers = ""
-        f = open('.\\no_notifyusr.txt', 'x', encoding="utf-8")
-        f.write(nonotifyusers)
         f.close()
 
 def thread_st(): #スレッドの開始をする関数
@@ -182,8 +167,8 @@ def createblacklistwin(): #ブラックリストを編集するウィンドウ�
     blacklistwin.resizable(False, False)
     nonotifyusrlabel = tk.Label(blacklistwin, text="XSOvelayで通知しないユーザー名をカンマ区切りで入力").pack()
     nonotifyusr = tk.Entry(blacklistwin, width=50)
-    loadblacklist()
-    nonotifyusr.insert(0, nonotifyusers)
+    loadsettings()
+    nonotifyusr.insert(0, config["no_notifysusr"])
     nonotifyusr.pack()
     editcompletebtn = tk.Button(blacklistwin, text="保存", command=lambda:savenonofityusr(nonotifyusr.get())).pack()
     blacklistwin.focus_set()
@@ -219,7 +204,8 @@ def main(lastline): #メイン関数
     senddatas = queue.Queue()
     xsdata = []
     joindata = ""
-    deleteusrs = nonotifyusers.split(",")
+    if config["no_notifysusr"]:
+        deleteusrs = config["no_notifysusr"].split(",")
     with open(findnewvrclog(), encoding="utf-8") as f: #ログファイルをリストで読み込み
         lines = f.readlines()
     endlines = len(lines) - 1 #最新の行までの行数
@@ -263,7 +249,6 @@ def main(lastline): #メイン関数
 appversion = "1.0.2" #アプリのバージョンを設定する
 
 loadsettings()
-loadblacklist()
 
 #GUI設定
 root = tk.Tk()
