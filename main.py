@@ -229,12 +229,12 @@ def main(lastline): #メイン関数
             xsdata.append((line[60:]).replace("\n", "")) #XSOverlayに送信するデータをリストに追加
             senddatas.put(qdata)
             joindata = line[:19] + " Join"
-        if line.find("[Behaviour] OnPlayerLeft") != -1:
+        if line.find("[Behaviour] OnPlayerLeft ") != -1:
             logview.configure(state='normal')
-            logview.insert('end', line[:19] + " Leave:" + line[59:])
+            logview.insert('end', line[:19] + " Leave" + line[58:])
             logview.see("end")
             logview.configure(state='disabled')
-            writejoinlog(line[:19] + " Leave:" + line[59:])
+            writejoinlog(line[:19] + " Leave" + line[58:])
     if joindata:
         joinlog = ""
         while not senddatas.empty():
