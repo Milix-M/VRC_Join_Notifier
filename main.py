@@ -174,7 +174,7 @@ def createblacklistwin(): #ブラックリストを編集するウィンドウ�
     loadsettings()
     nonotifyusr.insert(0, config["no_notifysusr"])
     nonotifyusr.pack()
-    editcompletebtn = tk.Button(blacklistwin, text="保存", command=lambda:savenonofityusr(nonotifyusr.get())).pack()
+    editcompletebtn = tk.Button(blacklistwin, text="保存", command=lambda:[savenonofityusr(nonotifyusr.get()), blacklistwin.destroy()]).pack()
     blacklistwin.focus_set()
 
 def autoexecwin(): #自動実行ウィンドウを作成する関数
