@@ -161,7 +161,7 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     bl6.set(config["startnowindow"])
     startnowindowchkbox = tk.Checkbutton(settingwin, variable=bl6, text="最小化した状態で起動").pack()
 
-    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get(), bl5.get(), bl6.get())).pack()
+    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:[savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get(), bl5.get(), bl6.get()), settingwin.destroy()]).pack()
     settingwin.focus_set()
 
 def createblacklistwin(): #ブラックリストを編集するウィンドウを作成する関数
