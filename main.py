@@ -54,7 +54,7 @@ def writejoinlog(writedata): #Joinログを.txtファイルに書き出す関数
         with open(".\\vrcjoinlog.txt", "x", encoding="utf-8") as f:
             f.write(writedata)
 
-def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworld, tasktray, startnowindow): #設定をファイルに書き込む関数
+def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworld, tasktray, startnowindow, leave): #設定をファイルに書き込む関数
     config["updinterval"] = updinterval
     config["sendxsoverlay"] = sendxsoverlay
     config["writelog"] = writelog
@@ -68,6 +68,7 @@ def savesettings(updinterval, sendxsoverlay, writelog, restorelogs, separateworl
         if not tasktray:
             config["tasktray"] = True
     config["startnowindow"] = startnowindow
+    config["leave"] = leave
     with open("config.json", "w") as f:
         json.dump(config, f, indent=2)
     loadsettings() #設定を再読み込み
@@ -85,7 +86,7 @@ def loadsettings(): #設定を読み込む関数
         config = json.load(f)
         f.close()
     else:
-        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True, "separateworld": True, "tasktray": True, "startnowindow": False, "no_notifysusr": ""}
+        config = {"updinterval": "1500", "sendxsoverlay": True, "writelog": True, "restorelogs": True, "separateworld": True, "tasktray": True, "startnowindow": False, "leave":True, "no_notifysusr": ""}
         f = open('.\\config.json', 'w')
         json.dump(config, f, indent=2) #json形式で書き込み
         f.close()
@@ -131,7 +132,7 @@ def createaboutapp(): #このアプリについてのウィンドウを作成す
 def createsettingwin(): #設定ウィンドウを作成する関数
     settingwin = tk.Toplevel()
     settingwin.title("環境設定")
-    settingwin.geometry("300x230")
+    settingwin.geometry("300x250")
     updintervallabel = tk.Label(settingwin, text="更新間隔(ms)").pack()
     updinterval = tk.Entry(settingwin, width=10)
     updinterval.insert(0, config["updinterval"])
@@ -161,7 +162,11 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     bl6.set(config["startnowindow"])
     startnowindowchkbox = tk.Checkbutton(settingwin, variable=bl6, text="最小化した状態で起動").pack()
 
-    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:[savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get(), bl5.get(), bl6.get()), settingwin.destroy()]).pack()
+    bl7 = tk.BooleanVar()
+    bl7.set(config["leave"])
+    leavelogshowwinchkbox = tk.Checkbutton(settingwin, variable=bl7, text="Leaveログを表示する").pack()
+
+    complatebuttom = tk.Button(settingwin, text="保存", command=lambda:[savesettings(updinterval.get(), bl.get(), bl2.get(), bl3.get(), bl4.get(), bl5.get(), bl6.get(), bl7.get()), settingwin.destroy()]).pack()
     settingwin.focus_set()
 
 def createblacklistwin(): #ブラックリストを編集するウィンドウを作成する関数
@@ -228,6 +233,12 @@ def main(lastline): #メイン関数
             xsdata.append((line[60:]).replace("\n", "")) #XSOverlayに送信するデータをリストに追加
             senddatas.put(qdata)
             joindata = line[:19] + " Join"
+        if line.find("[Behaviour] OnPlayerLeft") != -1:
+            logview.configure(state='normal')
+            logview.insert('end', line[:19] + " Leave:" + line[59:])
+            logview.see("end")
+            logview.configure(state='disabled')
+            writejoinlog(line[:19] + " Leave:" + line[59:])
     if joindata:
         joinlog = ""
         while not senddatas.empty():
