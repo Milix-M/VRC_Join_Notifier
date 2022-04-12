@@ -207,8 +207,10 @@ def autoexecwin(): #自動実行ウィンドウを作成する関数
 
 def main(lastline): #メイン関数
     senddatas = queue.Queue()
+    lsenddatas = queue.Queue()
     xsdata = []
     joindata = ""
+    leavedata = ""
     if config["no_notifysusr"]:
         deleteusrs = config["no_notifysusr"].split(",")
     with open(findnewvrclog(), encoding="utf-8") as f: #ログファイルをリストで読み込み
@@ -230,11 +232,9 @@ def main(lastline): #メイン関数
             senddatas.put(qdata)
             joindata = line[:19] + " Join"
         if config["leave"] and line.find("[Behaviour] OnPlayerLeft ") != -1:
-            logview.configure(state='normal')
-            logview.insert('end', line[:19] + " Leave" + line[58:])
-            logview.see("end")
-            logview.configure(state='disabled')
-            writejoinlog(line[:19] + " Leave" + line[58:])
+            qldata = (line[58:] + ",").replace("\n", "")
+            leavedata = line[:19] + " Leave"
+            lsenddatas.put(qldata)
     if joindata:
         joinlog = ""
         while not senddatas.empty():
@@ -254,6 +254,17 @@ def main(lastline): #メイン関数
         logview.configure(state='disabled')
         if config["writelog"]:
             writejoinlog(final_string)
+    if leavedata:
+        leavelog = ""
+        while not lsenddatas.empty():
+            leavelog = leavelog + lsenddatas.get()
+        lfinal_string = leavedata + leavelog.rstrip(",") + "\n"
+        logview.configure(state='normal')
+        logview.insert('end', lfinal_string)
+        logview.see("end")
+        logview.configure(state='disabled')
+        if config["writelog"]:
+            writejoinlog(lfinal_string)
     root.after(config["updinterval"], main, endlines) #メイン関数を再帰的に呼び出し
 
 
