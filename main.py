@@ -142,27 +142,21 @@ def createsettingwin(): #設定ウィンドウを作成する関数
     bl = tk.BooleanVar()
     bl.set(config["sendxsoverlay"])
     sendxsovelaychkbox = tk.Checkbutton(settingwin, variable=bl, text="XSOverlayに送信する").pack()
-
     bl2 = tk.BooleanVar()
     bl2.set(config["writelog"])
     writelogchkbox = tk.Checkbutton(settingwin, variable=bl2, text="Joinログを.txt形式で書き出す").pack()
-
     bl3 = tk.BooleanVar()
     bl3.set(config["restorelogs"])
     restorelogschkbox = tk.Checkbutton(settingwin, variable=bl3, text="Joinログを.txtファイルから読み込み復元する").pack()
-
     bl4 = tk.BooleanVar()
     bl4.set(config["separateworld"])
     separateworldchkbox = tk.Checkbutton(settingwin, variable=bl4, text="ワールド移動時にJoinログに区切りを挿入する").pack()
-
     bl5 = tk.BooleanVar()
     bl5.set(config["tasktray"])
     tasktraychkbox = tk.Checkbutton(settingwin, variable=bl5, text="タスクトレイに最小化").pack()
-
     bl6 = tk.BooleanVar()
     bl6.set(config["startnowindow"])
     startnowindowchkbox = tk.Checkbutton(settingwin, variable=bl6, text="最小化した状態で起動").pack()
-
     bl7 = tk.BooleanVar()
     bl7.set(config["leave"])
     leavelogshowwinchkbox = tk.Checkbutton(settingwin, variable=bl7, text="Leaveログを表示する").pack()
