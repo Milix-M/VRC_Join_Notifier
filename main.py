@@ -106,7 +106,8 @@ def thread_st(): #スレッドの開始をする関数
 def thread_quit(): #スレッドの終了処理をする関数
     global icon
     global root
-    icon.stop()
+    if config["tasktray"]:
+        icon.stop()
     root.destroy()
 
 def createaboutapp(): #このアプリについてのウィンドウを作成する関数
