@@ -241,7 +241,7 @@ def main(lastline): #メイン関数
             joinlog = joinlog + senddatas.get()
         final_string = joindata + joinlog.rstrip(",") + "\n"
         if config["sendxsoverlay"]:
-            for i in deleteusrs: #ブラックリストにあるユーザーを削除
+            for i in config["no_notifysusr"]: #ブラックリストにあるユーザーを削除
                 if " " + i in xsdata:
                     xsdata.remove(" " + i)
             xsoverlaysenddata = ",".join(xsdata)
