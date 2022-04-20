@@ -27,6 +27,7 @@ def findnewvrclog(): #最新のVRCログファイルを取得する関数
     return logs[0][0]
 
 def sendtoxsoverlay(content): #XSOverlayに通知を送信する関数
+    print(content)
     s = socket(AF_INET, SOCK_DGRAM)
     msg = {
         "messageType": 1,
@@ -213,6 +214,8 @@ def main(lastline): #メイン関数
     leavedata = ""
     if config["no_notifysusr"]:
         deleteusrs = config["no_notifysusr"].split(",")
+    else:
+        deleteusrs = []
     with open(findnewvrclog(), encoding="utf-8") as f: #ログファイルをリストで読み込み
         lines = f.readlines()
     endlines = len(lines) - 1 #最新の行までの行数
@@ -241,7 +244,7 @@ def main(lastline): #メイン関数
             joinlog = joinlog + senddatas.get()
         final_string = joindata + joinlog.rstrip(",") + "\n"
         if config["sendxsoverlay"]:
-            for i in config["no_notifysusr"]: #ブラックリストにあるユーザーを削除
+            for i in deleteusrs: #ブラックリストにあるユーザーを削除
                 if " " + i in xsdata:
                     xsdata.remove(" " + i)
             xsoverlaysenddata = ",".join(xsdata)
