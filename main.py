@@ -27,7 +27,6 @@ def findnewvrclog(): #最新のVRCログファイルを取得する関数
     return logs[0][0]
 
 def sendtoxsoverlay(content): #XSOverlayに通知を送信する関数
-    print(content)
     s = socket(AF_INET, SOCK_DGRAM)
     msg = {
         "messageType": 1,
