@@ -302,7 +302,7 @@ def main(lastline): #メイン関数
     root.after(config["updinterval"], main, endlines) #メイン関数を再帰的に呼び出し
 
 
-appversion = "1.1.2" #アプリのバージョンを設定する
+appversion = "1.2" #アプリのバージョンを設定する
 
 loadsettings()
 
